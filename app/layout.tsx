@@ -13,7 +13,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Sistema de Locadora",
   description: "Sistema de gestão para locadoras de veículos",
-  generator: "v0.app",
 }
 
 export default function RootLayout({
