@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic";
 
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"

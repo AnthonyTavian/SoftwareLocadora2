@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -128,7 +129,7 @@ export default function MaintenancePage() {
 
   // Save parts
   const saveParts = (updatedParts: Part[]) => {
-    localStorage.setItem("parts", JSON.JSON.stringify(updatedParts))
+    localStorage.setItem("parts", JSON.stringify(updatedParts))
     setParts(updatedParts)
   }
 

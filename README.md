@@ -1,30 +1,79 @@
-# Git project retrieval
+# 🚗 LocadoraPro
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+Um sistema moderno de gerenciamento para locadoras de veículos, desenvolvido com Next.js e Electron.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/anthonycastromine-5045s-projects/v0-git-project-retrieval)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/oolIxJinl4Y)
+## 🚀 Tecnologias
 
-## Overview
+- [Next.js 14](https://nextjs.org/) - Framework React com SSR
+- [Electron](https://www.electronjs.org/) - Framework para apps desktop
+- [TypeScript](https://www.typescriptlang.org/) - Tipagem estática
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## 📋 Requisitos
 
-## Deployment
+- [Node.js](https://nodejs.org/) (v18.0.0 ou superior)
+- [pnpm](https://pnpm.io/) (v8.0.0 ou superior)
 
-Your project is live at:
+## 🛠️ Instalação
 
-**[https://vercel.com/anthonycastromine-5045s-projects/v0-git-project-retrieval](https://vercel.com/anthonycastromine-5045s-projects/v0-git-project-retrieval)**
+1. Clone o repositório
+```bash
+git clone https://github.com/AnthonyTavian/SoftwareLocadora2.git
+cd SoftwareLocadora2
+```
 
-## Build your app
+2. Instale as dependências
+```bash
+pnpm install
+```
 
-Continue building your app on:
+## 💻 Desenvolvimento
 
-**[https://v0.app/chat/projects/oolIxJinl4Y](https://v0.app/chat/projects/oolIxJinl4Y)**
+Inicie o ambiente de desenvolvimento:
 
-## How It Works
+```bash
+# Apenas Next.js
+pnpm dev
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+# Next.js + Electron
+pnpm electron:dev
+```
+
+## 📦 Build
+
+Gere uma versão de produção:
+
+```bash
+# Build completo (Next.js + Electron)
+pnpm package
+
+# Build separado
+pnpm build:web      # Apenas Next.js
+pnpm build:electron # Apenas Electron
+```
+
+## 🔍 Scripts Disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `pnpm dev` | Inicia Next.js em modo desenvolvimento |
+| `pnpm electron:dev` | Inicia Electron + Next.js em desenvolvimento |
+| `pnpm build:web` | Gera build de produção do Next.js |
+| `pnpm build:electron` | Empacota o app com Electron Builder |
+| `pnpm package` | Executa build completo (web + desktop) |
+
+## 📱 Funcionalidades
+
+- 📊 Dashboard com métricas principais
+- 🚗 Gerenciamento de veículos
+- 👥 Cadastro de clientes
+- 📝 Controle de locações
+- 🔧 Manutenção de veículos
+- 📈 Relatórios gerenciais
+
+## 🔒 Licença
+
+Este software é proprietário e de uso exclusivo da empresa. Todos os direitos reservados.
+
+## 👨‍💻 Autor
+
+Desenvolvido por Anthony - [GitHub](https://github.com/AnthonyTavian)

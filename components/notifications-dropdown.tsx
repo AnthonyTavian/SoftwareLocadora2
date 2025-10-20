@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react"
 import { Bell, Calendar, Gauge, AlertTriangle } from "lucide-react"
@@ -178,7 +179,7 @@ export function NotificationsDropdown() {
         </ScrollArea>
         {alertCount > 0 && (
           <div className="border-t p-2">
-            <Link href="/maintenance" onClick={() => setOpen(false)}>
+            <Link href="./maintenance" onClick={() => setOpen(false)}>
               <Button variant="ghost" className="w-full text-xs" size="sm">
                 Ver todas as manutenções
               </Button>

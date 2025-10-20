@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { DashboardStats } from "@/components/dashboard/dashboard-stats"
 import { MaintenanceAlerts } from "@/components/dashboard/maintenance-alerts"
 import { RecentRentals } from "@/components/dashboard/recent-rentals"
