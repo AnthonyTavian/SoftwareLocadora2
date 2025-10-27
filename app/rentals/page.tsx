@@ -29,38 +29,10 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, CheckCircle, XCircle, Search, Calendar, DollarSign } from "lucide-react"
 import { Label } from "@/components/ui/label"
+import type { Vehicle } from "@/lib/vehiclesService"
+import type { Rental } from "@/lib/rentalsService"
+import type { Customer } from "@/lib/customersService"
 
-type Rental = {
-  id: string
-  customerId: string
-  customerName: string
-  vehicleId: string
-  vehiclePlate: string
-  vehicleModel: string
-  startDate: string
-  endDate: string
-  dailyRate: number
-  totalAmount: number
-  status: "active" | "completed" | "cancelled"
-  createdAt: string
-}
-
-type Vehicle = {
-  id: string
-  plate: string
-  brand: string
-  model: string
-  dailyRate: number
-  status: "available" | "rented" | "maintenance"
-}
-
-type Customer = {
-  id: string
-  name: string
-  email: string
-  phone: string
-  status: "active" | "inactive"
-}
 
 export default function RentalsPage() {
   const [rentals, setRentals] = useState<Rental[]>([])
@@ -80,27 +52,24 @@ export default function RentalsPage() {
 
   // Load data from localStorage
   useEffect(() => {
-    const storedRentals = localStorage.getItem("rentals")
-    const storedVehicles = localStorage.getItem("vehicles")
-    const storedCustomers = localStorage.getItem("customers")
-
-    if (storedRentals) setRentals(JSON.parse(storedRentals))
-    if (storedVehicles) setVehicles(JSON.parse(storedVehicles))
-    if (storedCustomers) setCustomers(JSON.parse(storedCustomers))
+    window.electronAPI.getRentals().then((data: Rental[]) => setRentals(data))
+    window.electronAPI.getVehicles().then((data: Vehicle[]) => setVehicles(data))
+    window.electronAPI.getCustomers().then((data: Customer[]) => setCustomers(data))
   }, [])
 
   // Save rentals to localStorage
-  const saveRentals = (updatedRentals: Rental[]) => {
-    localStorage.setItem("rentals", JSON.stringify(updatedRentals))
+  const saveRentals = async (updatedRentals: Rental[]) => {
+    await window.electronAPI.saveRentals(updatedRentals)
     setRentals(updatedRentals)
   }
 
   // Update vehicle status
-  const updateVehicleStatus = (vehicleId: string, status: Vehicle["status"]) => {
+  const updateVehicleStatus = async (vehicleId: string, status: Vehicle["status"]) => {
     const updatedVehicles = vehicles.map((v) => (v.id === vehicleId ? { ...v, status } : v))
-    localStorage.setItem("vehicles", JSON.stringify(updatedVehicles))
+    await window.electronAPI.saveVehicles(updatedVehicles)
     setVehicles(updatedVehicles)
   }
+
 
   // Calculate total amount
   const calculateTotal = (startDate: string, endDate: string, dailyRate: number) => {
@@ -111,7 +80,7 @@ export default function RentalsPage() {
   }
 
   // Add rental
-  const handleAddRental = () => {
+  const handleAddRental = async () => {
     const customer = customers.find((c) => c.id === formData.customerId)
     const vehicle = vehicles.find((v) => v.id === formData.vehicleId)
 
@@ -135,33 +104,39 @@ export default function RentalsPage() {
     }
 
     const updatedRentals = [...rentals, newRental]
-    saveRentals(updatedRentals)
-    updateVehicleStatus(vehicle.id, "rented")
+    await saveRentals(updatedRentals)
+    await updateVehicleStatus(vehicle.id, "rented")
     setIsAddDialogOpen(false)
     resetForm()
   }
 
   // Complete rental
-  const handleCompleteRental = () => {
+  const handleCompleteRental = async () => {
     if (!selectedRental) return
 
-    const updatedRentals = rentals.map((r) => (r.id === selectedRental.id ? { ...r, status: "completed" as const } : r))
-    saveRentals(updatedRentals)
-    updateVehicleStatus(selectedRental.vehicleId, "available")
+    const updatedRentals = rentals.map((r) =>
+      r.id === selectedRental.id ? { ...r, status: "completed" as const } : r
+    )
+    await saveRentals(updatedRentals)
+    await updateVehicleStatus(selectedRental.vehicleId, "available")
     setIsCompleteDialogOpen(false)
     setSelectedRental(null)
   }
 
+
   // Cancel rental
-  const handleCancelRental = () => {
+  const handleCancelRental = async () => {
     if (!selectedRental) return
 
-    const updatedRentals = rentals.map((r) => (r.id === selectedRental.id ? { ...r, status: "cancelled" as const } : r))
-    saveRentals(updatedRentals)
-    updateVehicleStatus(selectedRental.vehicleId, "available")
+    const updatedRentals = rentals.map((r) =>
+      r.id === selectedRental.id ? { ...r, status: "cancelled" as const } : r
+    )
+    await saveRentals(updatedRentals)
+    await updateVehicleStatus(selectedRental.vehicleId, "available")
     setIsCancelDialogOpen(false)
     setSelectedRental(null)
   }
+
 
   // Open complete dialog
   const openCompleteDialog = (rental: Rental) => {

@@ -18,19 +18,23 @@ export function MaintenanceAlerts() {
   const [alerts, setAlerts] = useState<MaintenanceAlert[]>([])
 
   useEffect(() => {
-    const maintenance = JSON.parse(localStorage.getItem("maintenance") || "[]")
-    const today = new Date()
+    async function loadAlerts() {
+      const maintenance = await window.electronAPI.getMaintenance()
+      const today = new Date()
 
-    const upcomingAlerts = maintenance
-      .map((m: any) => {
-        const nextDate = new Date(m.nextDate)
-        const daysUntil = Math.floor((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-        return { ...m, daysUntil }
-      })
-      .filter((m: any) => m.daysUntil <= 7 && m.daysUntil >= 0)
-      .sort((a: any, b: any) => a.daysUntil - b.daysUntil)
+      const upcomingAlerts = maintenance
+        .map((m: any) => {
+          const nextDate = new Date(m.nextDate)
+          const daysUntil = Math.floor((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+          return { ...m, daysUntil }
+        })
+        .filter((m: any) => m.daysUntil <= 7 && m.daysUntil >= 0)
+        .sort((a: any, b: any) => a.daysUntil - b.daysUntil)
 
-    setAlerts(upcomingAlerts)
+      setAlerts(upcomingAlerts)
+    }
+
+    loadAlerts()
   }, [])
 
   if (alerts.length === 0) {

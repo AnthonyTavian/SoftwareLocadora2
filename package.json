@@ -12,7 +12,9 @@
     "start": "next start",
     "electron": "pnpm exec cross-env NODE_ENV=production electron .",
     "build:electron": "pnpm exec cross-env NODE_ENV=production electron-builder",
-    "package": "pnpm build:web && pnpm build:electron"
+    "build:ts": "tsc -p tsconfig.build.json",
+    "package": "pnpm build:web && pnpm build:ts && pnpm build:electron"
+
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -100,7 +102,9 @@
       "node_modules/use-sync-external-store/**/*",
       "app/**/*",
       "components/**/*",
-      "public/**/*"
+      "public/**/*",
+      "lib/**/*",
+      "preload.js"
     ],
     "asar": true,
     "asarUnpack": [

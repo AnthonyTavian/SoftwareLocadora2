@@ -68,51 +68,57 @@ export default function CustomersPage() {
 
   // Load customers from localStorage
   useEffect(() => {
-    const storedCustomers = localStorage.getItem("customers")
-    if (storedCustomers) {
-      setCustomers(JSON.parse(storedCustomers))
-    }
+    window.electronAPI.getCustomers().then((data) => setCustomers(data))
   }, [])
 
+
   // Save customers to localStorage
-  const saveCustomers = (updatedCustomers: Customer[]) => {
-    localStorage.setItem("customers", JSON.stringify(updatedCustomers))
+  const saveCustomers = async (updatedCustomers: Customer[]) => {
+    await window.electronAPI.saveCustomers(updatedCustomers)
     setCustomers(updatedCustomers)
   }
 
-  // Add customer
-  const handleAddCustomer = () => {
+
+  // Adicionar cliente
+  const handleAddCustomer = async () => {
     const newCustomer: Customer = {
       id: crypto.randomUUID(),
       ...formData,
       createdAt: new Date().toISOString(),
-    }
-    const updatedCustomers = [...customers, newCustomer]
-    saveCustomers(updatedCustomers)
-    setIsAddDialogOpen(false)
-    resetForm()
-  }
+    };
 
-  // Edit customer
-  const handleEditCustomer = () => {
-    if (!selectedCustomer) return
+    const updatedCustomers = [...customers, newCustomer];
+
+    await saveCustomers(updatedCustomers); // grava no JSON
+    setIsAddDialogOpen(false);
+    resetForm();
+  };
+
+  // Editar cliente
+  const handleEditCustomer = async () => {
+    if (!selectedCustomer) return;
+
     const updatedCustomers = customers.map((c) =>
-      c.id === selectedCustomer.id ? { ...selectedCustomer, ...formData } : c,
-    )
-    saveCustomers(updatedCustomers)
-    setIsEditDialogOpen(false)
-    setSelectedCustomer(null)
-    resetForm()
-  }
+      c.id === selectedCustomer.id ? { ...selectedCustomer, ...formData } : c
+    );
 
-  // Delete customer
-  const handleDeleteCustomer = () => {
-    if (!selectedCustomer) return
-    const updatedCustomers = customers.filter((c) => c.id !== selectedCustomer.id)
-    saveCustomers(updatedCustomers)
-    setIsDeleteDialogOpen(false)
-    setSelectedCustomer(null)
-  }
+    await saveCustomers(updatedCustomers); // grava no JSON
+    setIsEditDialogOpen(false);
+    setSelectedCustomer(null);
+    resetForm();
+  };
+
+  // Excluir cliente
+  const handleDeleteCustomer = async () => {
+    if (!selectedCustomer) return;
+
+    const updatedCustomers = customers.filter((c) => c.id !== selectedCustomer.id);
+
+    await saveCustomers(updatedCustomers); // grava no JSON
+    setIsDeleteDialogOpen(false);
+    setSelectedCustomer(null);
+  };
+
 
   // Open edit dialog
   const openEditDialog = (customer: Customer) => {

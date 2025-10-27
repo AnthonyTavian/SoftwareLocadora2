@@ -18,11 +18,15 @@ export function RecentRentals() {
   const [rentals, setRentals] = useState<Rental[]>([])
 
   useEffect(() => {
-    const allRentals = JSON.parse(localStorage.getItem("rentals") || "[]")
-    const recent = allRentals
-      .sort((a: any, b: any) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-      .slice(0, 5)
-    setRentals(recent)
+    async function loadRecentRentals() {
+      const allRentals = await window.electronAPI.getRentals()
+      const recent = allRentals
+        .sort((a: any, b: any) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        .slice(0, 5)
+      setRentals(recent)
+    }
+
+    loadRecentRentals()
   }, [])
 
   return (

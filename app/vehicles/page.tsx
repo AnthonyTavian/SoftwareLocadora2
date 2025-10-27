@@ -29,19 +29,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Pencil, Trash2, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
-
-type Vehicle = {
-  id: string
-  plate: string
-  brand: string
-  model: string
-  year: number
-  color: string
-  category: string
-  dailyRate: number
-  currentMileage: number
-  status: "available" | "rented" | "maintenance"
-}
+import type { Vehicle } from "@/lib/vehiclesService"
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -64,45 +52,49 @@ export default function VehiclesPage() {
 
   // Load vehicles from localStorage
   useEffect(() => {
-    const storedVehicles = localStorage.getItem("vehicles")
-    if (storedVehicles) {
-      setVehicles(JSON.parse(storedVehicles))
-    }
+    window.electronAPI.getVehicles().then((data: Vehicle[]) => setVehicles(data))
   }, [])
 
+
   // Save vehicles to localStorage
-  const saveVehicles = (updatedVehicles: Vehicle[]) => {
-    localStorage.setItem("vehicles", JSON.stringify(updatedVehicles))
+  const saveVehicles = async (updatedVehicles: Vehicle[]) => {
+    await window.electronAPI.saveVehicles(updatedVehicles)
     setVehicles(updatedVehicles)
   }
 
+
+
   // Add vehicle
-  const handleAddVehicle = () => {
+  const handleAddVehicle = async () => {
     const newVehicle: Vehicle = {
       id: crypto.randomUUID(),
       ...formData,
     }
     const updatedVehicles = [...vehicles, newVehicle]
-    saveVehicles(updatedVehicles)
+    await saveVehicles(updatedVehicles)
     setIsAddDialogOpen(false)
     resetForm()
   }
 
+
   // Edit vehicle
-  const handleEditVehicle = () => {
+  const handleEditVehicle = async () => {
     if (!selectedVehicle) return
-    const updatedVehicles = vehicles.map((v) => (v.id === selectedVehicle.id ? { ...selectedVehicle, ...formData } : v))
-    saveVehicles(updatedVehicles)
+    const updatedVehicles = vehicles.map((v) =>
+      v.id === selectedVehicle.id ? { ...selectedVehicle, ...formData } : v
+    )
+    await saveVehicles(updatedVehicles)
     setIsEditDialogOpen(false)
     setSelectedVehicle(null)
     resetForm()
   }
 
+
   // Delete vehicle
-  const handleDeleteVehicle = () => {
+  const handleDeleteVehicle = async () => {
     if (!selectedVehicle) return
     const updatedVehicles = vehicles.filter((v) => v.id !== selectedVehicle.id)
-    saveVehicles(updatedVehicles)
+    await saveVehicles(updatedVehicles)
     setIsDeleteDialogOpen(false)
     setSelectedVehicle(null)
   }

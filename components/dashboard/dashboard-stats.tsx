@@ -15,28 +15,33 @@ export function DashboardStats() {
   })
 
   useEffect(() => {
-    const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]")
-    const customers = JSON.parse(localStorage.getItem("customers") || "[]")
-    const rentals = JSON.parse(localStorage.getItem("rentals") || "[]")
-    const maintenance = JSON.parse(localStorage.getItem("maintenance") || "[]")
+    async function loadStats() {
+      const vehicles = await window.electronAPI.getVehicles()
+      const customers = await window.electronAPI.getCustomers()
+      const rentals = await window.electronAPI.getRentals()
+      const maintenance = await window.electronAPI.getMaintenance()
 
-    const activeRentals = rentals.filter((r: any) => r.status === "active").length
-    const availableVehicles = vehicles.filter((v: any) => v.status === "available").length
-    const maintenanceAlerts = maintenance.filter((m: any) => {
-      const nextDate = new Date(m.nextDate)
-      const today = new Date()
-      const daysUntil = Math.floor((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-      return daysUntil <= 7 && daysUntil >= 0
-    }).length
+      const activeRentals = rentals.filter((r) => r.status === "active").length
+      const availableVehicles = vehicles.filter((v) => v.status === "available").length
+      const maintenanceAlerts = maintenance.filter((m) => {
+        const nextDate = new Date(m.nextDate)
+        const today = new Date()
+        const daysUntil = Math.floor((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        return daysUntil <= 7 && daysUntil >= 0
+      }).length
 
-    setStats({
-      totalVehicles: vehicles.length,
-      availableVehicles,
-      totalCustomers: customers.length,
-      activeRentals,
-      maintenanceAlerts,
-    })
+      setStats({
+        totalVehicles: vehicles.length,
+        availableVehicles,
+        totalCustomers: customers.length,
+        activeRentals,
+        maintenanceAlerts,
+      })
+    }
+
+    loadStats()
   }, [])
+
 
   const statCards = [
     {

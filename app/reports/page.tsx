@@ -23,46 +23,10 @@ import {
 } from "recharts"
 import { TrendingUp, DollarSign, Car, Users } from "lucide-react"
 
-type Vehicle = {
-  id: string
-  plate: string
-  brand: string
-  model: string
-  category: string
-  status: "available" | "rented" | "maintenance"
-  dailyRate: number
-}
-
-type Customer = {
-  id: string
-  name: string
-  email: string
-  status: "active" | "inactive"
-  createdAt: string
-}
-
-type Rental = {
-  id: string
-  customerId: string
-  customerName: string
-  vehicleId: string
-  vehiclePlate: string
-  startDate: string
-  endDate: string
-  totalAmount: number
-  status: "active" | "completed" | "cancelled"
-  createdAt: string
-}
-
-type MaintenanceRecord = {
-  id: string
-  vehicleId: string
-  vehiclePlate: string
-  type: "preventive" | "corrective" | "inspection"
-  cost: number
-  date: string
-  status: "scheduled" | "in-progress" | "completed"
-}
+import type { Vehicle } from "@/lib/vehiclesService"
+import type { Customer } from "@/lib/customersService"
+import type { Rental } from "@/lib/rentalsService"
+import type { MaintenanceRecord } from "@/lib/maintenanceService"
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"]
 
@@ -77,15 +41,10 @@ export default function ReportsPage() {
 
   // Load data from localStorage
   useEffect(() => {
-    const storedVehicles = localStorage.getItem("vehicles")
-    const storedCustomers = localStorage.getItem("customers")
-    const storedRentals = localStorage.getItem("rentals")
-    const storedMaintenance = localStorage.getItem("maintenance")
-
-    if (storedVehicles) setVehicles(JSON.parse(storedVehicles))
-    if (storedCustomers) setCustomers(JSON.parse(storedCustomers))
-    if (storedRentals) setRentals(JSON.parse(storedRentals))
-    if (storedMaintenance) setMaintenance(JSON.parse(storedMaintenance))
+    window.electronAPI.getVehicles().then((data: Vehicle[]) => setVehicles(data))
+    window.electronAPI.getCustomers().then((data: Customer[]) => setCustomers(data))
+    window.electronAPI.getRentals().then((data: Rental[]) => setRentals(data))
+    window.electronAPI.getMaintenance().then((data: MaintenanceRecord[]) => setMaintenance(data))
   }, [])
 
   // Filter data by date range

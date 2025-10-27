@@ -39,19 +39,18 @@ export function NotificationsDropdown() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const loadData = () => {
-      const storedMaintenance = localStorage.getItem("maintenance")
-      const storedVehicles = localStorage.getItem("vehicles")
+    const loadData = async () => {
+      const maintenance = await window.electronAPI.getMaintenance()
+      const vehicles = await window.electronAPI.getVehicles()
 
-      if (storedMaintenance) setMaintenanceRecords(JSON.parse(storedMaintenance))
-      if (storedVehicles) setVehicles(JSON.parse(storedVehicles))
+      setMaintenanceRecords(maintenance)
+      setVehicles(vehicles)
     }
 
     loadData()
 
-    // Refresh data every 30 seconds to keep alerts up to date
+    // Atualiza a cada 30 segundos
     const interval = setInterval(loadData, 30000)
-
     return () => clearInterval(interval)
   }, [])
 

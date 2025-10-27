@@ -31,44 +31,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Pencil, Trash2, Search, AlertTriangle, Calendar, Gauge } from "lucide-react"
 import { Label } from "@/components/ui/label"
-
-type MaintenanceRecord = {
-  id: string
-  vehicleId: string
-  vehiclePlate: string
-  vehicleModel: string
-  type: "preventive" | "corrective" | "inspection"
-  description: string
-  cost: number
-  date: string
-  lastMileage: number
-  dateInterval: number // days until next maintenance
-  mileageInterval: number // km until next maintenance
-  nextDate: string
-  nextMileage: number
-  status: "scheduled" | "in-progress" | "completed"
-  createdAt: string
-}
-
-type Part = {
-  id: string
-  name: string
-  code: string
-  quantity: number
-  minQuantity: number
-  unitPrice: number
-  supplier: string
-  lastRestocked: string
-}
-
-type Vehicle = {
-  id: string
-  plate: string
-  brand: string
-  model: string
-  currentMileage: number
-  status: string
-}
+import type { Vehicle } from "@/lib/vehiclesService"
+import type { MaintenanceRecord } from "@/lib/maintenanceService"
+import type { Part } from "@/lib/partsService"
 
 export default function MaintenancePage() {
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([])
@@ -112,24 +77,20 @@ export default function MaintenancePage() {
 
   // Load data from localStorage
   useEffect(() => {
-    const storedMaintenance = localStorage.getItem("maintenance")
-    const storedParts = localStorage.getItem("parts")
-    const storedVehicles = localStorage.getItem("vehicles")
-
-    if (storedMaintenance) setMaintenanceRecords(JSON.parse(storedMaintenance))
-    if (storedParts) setParts(JSON.parse(storedParts))
-    if (storedVehicles) setVehicles(JSON.parse(storedVehicles))
+    window.electronAPI.getMaintenance().then((data: MaintenanceRecord[]) => setMaintenanceRecords(data))
+    window.electronAPI.getParts().then((data: Part[]) => setParts(data))
+    window.electronAPI.getVehicles().then((data: Vehicle[]) => setVehicles(data))
   }, [])
 
   // Save maintenance records
-  const saveMaintenanceRecords = (updatedRecords: MaintenanceRecord[]) => {
-    localStorage.setItem("maintenance", JSON.stringify(updatedRecords))
+  const saveMaintenanceRecords = async (updatedRecords: MaintenanceRecord[]) => {
+    await window.electronAPI.saveMaintenance(updatedRecords)
     setMaintenanceRecords(updatedRecords)
   }
 
   // Save parts
-  const saveParts = (updatedParts: Part[]) => {
-    localStorage.setItem("parts", JSON.stringify(updatedParts))
+  const saveParts = async (updatedParts: Part[]) => {
+    await window.electronAPI.saveParts(updatedParts)
     setParts(updatedParts)
   }
 
@@ -149,8 +110,8 @@ export default function MaintenancePage() {
     }
   }
 
-  // Maintenance CRUD operations
-  const handleAddMaintenance = () => {
+  // Adicionar manutenção
+  const handleAddMaintenance = async () => {
     const vehicle = vehicles.find((v) => v.id === maintenanceFormData.vehicleId)
     if (!vehicle) return
 
@@ -179,12 +140,13 @@ export default function MaintenancePage() {
       createdAt: new Date().toISOString(),
     }
 
-    saveMaintenanceRecords([...maintenanceRecords, newRecord])
+    await saveMaintenanceRecords([...maintenanceRecords, newRecord])
     setIsAddMaintenanceDialogOpen(false)
     resetMaintenanceForm()
   }
 
-  const handleEditMaintenance = () => {
+  // Editar manutenção
+  const handleEditMaintenance = async () => {
     if (!selectedMaintenance) return
 
     const { nextDate, nextMileage } = calculateNextMaintenance(
@@ -196,61 +158,65 @@ export default function MaintenancePage() {
 
     const updatedRecords = maintenanceRecords.map((m) =>
       m.id === selectedMaintenance.id
-        ? {
-            ...selectedMaintenance,
-            ...maintenanceFormData,
-            nextDate,
-            nextMileage,
-          }
+        ? { ...selectedMaintenance, ...maintenanceFormData, nextDate, nextMileage }
         : m,
     )
-    saveMaintenanceRecords(updatedRecords)
+
+    await saveMaintenanceRecords(updatedRecords)
     setIsEditMaintenanceDialogOpen(false)
     setSelectedMaintenance(null)
     resetMaintenanceForm()
   }
 
-  const handleDeleteMaintenance = () => {
+  // Excluir manutenção
+  const handleDeleteMaintenance = async () => {
     if (!selectedMaintenance) return
 
     const updatedRecords = maintenanceRecords.filter((m) => m.id !== selectedMaintenance.id)
-    saveMaintenanceRecords(updatedRecords)
+    await saveMaintenanceRecords(updatedRecords)
+
     setIsDeleteMaintenanceDialogOpen(false)
     setSelectedMaintenance(null)
   }
 
-  // Parts CRUD operations
-  const handleAddPart = () => {
+  // Adicionar peça
+  const handleAddPart = async () => {
     const newPart: Part = {
       id: crypto.randomUUID(),
       ...partFormData,
       lastRestocked: new Date().toISOString(),
     }
 
-    saveParts([...parts, newPart])
+    await saveParts([...parts, newPart])
     setIsAddPartDialogOpen(false)
     resetPartForm()
   }
 
-  const handleEditPart = () => {
+  // Editar peça
+  const handleEditPart = async () => {
     if (!selectedPart) return
 
-    const updatedParts = parts.map((p) => (p.id === selectedPart.id ? { ...selectedPart, ...partFormData } : p))
-    saveParts(updatedParts)
+    const updatedParts = parts.map((p) =>
+      p.id === selectedPart.id ? { ...selectedPart, ...partFormData } : p,
+    )
+
+    await saveParts(updatedParts)
     setIsEditPartDialogOpen(false)
     setSelectedPart(null)
     resetPartForm()
   }
 
-  const handleDeletePart = () => {
+  // Excluir peça
+  const handleDeletePart = async () => {
     if (!selectedPart) return
 
     const updatedParts = parts.filter((p) => p.id !== selectedPart.id)
-    saveParts(updatedParts)
+    await saveParts(updatedParts)
+
     setIsDeletePartDialogOpen(false)
     setSelectedPart(null)
   }
-
+  
   // Dialog helpers
   const openEditMaintenanceDialog = (record: MaintenanceRecord) => {
     setSelectedMaintenance(record)
